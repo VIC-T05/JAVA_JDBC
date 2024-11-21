@@ -1,5 +1,6 @@
 package model.dao;
 
+import java.util.Date;
 import java.util.List;
 
 import model.entities.Department;
