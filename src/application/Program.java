@@ -82,6 +82,7 @@ public class Program {
 		System.out.println("1. Find by ID");
 		System.out.println("2. Find all");
 		System.out.println("3. Insert department");
+		System.out.println("4. Update department");
 		System.out.println("0. Return");
 		int departmentOption = sc.nextInt();
 
@@ -313,7 +314,6 @@ public class Program {
 	}
 
 	private static void initializeDepartmentOptions(int options, Scanner sc) {
-		DepartmentDao department = DaoFactory.createDepartmentDao();
 		switch (options) {
 		case 1:
 			FindDepartmentByIdOption(sc);
@@ -340,7 +340,31 @@ public class Program {
 	}
 
 	private static void UpdateDepartmentOption(Scanner sc) {
-		// TODO Auto-generated method stub
+		DepartmentDao departmentDao = DaoFactory.createDepartmentDao();
+		System.out.println("\n===UPDATE DEPARTMENT===\n");
+		String name = null;		
+		String pastName = null;
+		Department department = departmentDao.findById(ValidationUtil.validateIntegerEntry(sc));
+		sc.nextLine();
+		pastName= department.getName();
+		if (department.getName() != null) {
+			System.out.println("Department: " + department.getName());
+			while (name == null) {
+				try {
+					System.out.print("Update name: ");
+					ValidationUtil.validateDepartmentName(name = sc.nextLine());
+				} catch (InvalidEntryException e) {
+					System.out.println(e.getMessage());
+					name = null;
+				}
+				department.setName(name);
+				departmentDao.update(department);
+			}
+		} else {
+			System.out.println("Error. Department not found!");
+			return;
+		}
+		System.out.println("\nUpdate completed!\nFrom " + pastName + " to " + name + ".");
 
 	}
 
@@ -362,7 +386,6 @@ public class Program {
 		Department department = new Department(null, name);
 		departmentDao.insert(department);
 		System.out.println("\n+++ DEPARTMENT ADDED SUCCESSFULLY! +++\n");
-		sc.next();
 	}
 
 	private static void FindAllDepartmentOption(Scanner sc) {
