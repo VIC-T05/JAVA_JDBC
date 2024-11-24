@@ -4,8 +4,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import db.DB;
 import db.DbException;
@@ -45,21 +45,21 @@ public class DepartmentDaoJDBC implements DepartmentDao {
 		}
 	}
 	@Override
-	public List<Department> findAll() {
+	public Set<Department> findAll() {
 		PreparedStatement st = null;
 		ResultSet rs = null;
 		try {
 			st = conn.prepareStatement(
 				"SELECT * FROM department ORDER BY Name");
 			rs = st.executeQuery();
-			List<Department> list = new ArrayList<>();
+			Set<Department> set = new HashSet<>();
 			while (rs.next()) {
 				Department obj = new Department();
 				obj.setId(rs.getInt("Id"));
 				obj.setName(rs.getString("Name"));
-				list.add(obj);
+				set.add(obj);
 			}
-			return list;
+			return set;
 		}
 		catch (SQLException e) {
 			throw new DbException(e.getMessage());

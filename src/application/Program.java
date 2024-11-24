@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Scanner;
+import java.util.Set;
 
 import db.InvalidEntryException;
 import model.dao.DaoFactory;
@@ -23,6 +24,7 @@ public class Program {
 	public static void main(String[] args) {
 		Locale.setDefault(Locale.US);
 		Scanner sc = new Scanner(System.in);
+
 		int menuOption;
 
 		do {
@@ -62,8 +64,10 @@ public class Program {
 			System.out.println("=== SELLER OPTIONS ===");
 			System.out.println("1. Find by ID");
 			System.out.println("2. Find seller by department ID");
-			System.out.println("3. Find All");
+			System.out.println("3. Find all");
 			System.out.println("4. Insert new seller");
+			System.out.println("5. Update seller");
+			System.out.println("6. Delete seller");
 			System.out.println("0. Return");
 			sellerOption = sc.nextInt();
 
@@ -75,6 +79,8 @@ public class Program {
 
 	private static void departmentOptions(Scanner sc) {
 		System.out.println("=== DEPARTMENT OPTIONS ===");
+		System.out.println("1. Find by ID");
+		System.out.println("3. Find all");
 		System.out.println("0. Return");
 		int departmentOption = sc.nextInt();
 
@@ -95,43 +101,140 @@ public class Program {
 	}
 
 	private static void initializeSellerOptions(int options, Scanner sc) {
-		SellerDao sellerDao = DaoFactory.createSellerDao();
-		switch (options) {
 
+		switch (options) {
 		case 1:
-			System.out.println("===FIND SELLER BY ID===");
-			int id = getEntryId(sc);
-			Seller seller = sellerDao.findById(id);
-			System.out.println(seller);
-			System.out.println();
+			FindByIdSellerOption(sc);
 			break;
 		case 2:
-			System.out.println("===FIND SELLER BY DEPARTMENT ID===");
-			int departmentId = getEntryId(sc);
-			Department department = new Department(departmentId, null);
-			List<Seller> list = sellerDao.findByDepartment(department);
-			for (Seller obj : list) {
-				System.out.println(obj);
-			}
-			System.out.println();
+			FindByDepartmentIdSellerOption(sc);
 			break;
 		case 3:
-			System.out.println("===FIND All===");
-			list = sellerDao.findAll();
-			for (Seller obj : list) {
-				System.out.println(obj);
-			}
+			FindAllSellerOption(sc);
 			System.out.println();
 			break;
 		case 4:
 			InsertSellerOption(sc);
 			break;
-
+		case 5:
+			UptadeSellerOption(sc);
+			break;
+		case 6:
+			DeleteSellerOption(sc);
 		default:
 			sellerOptions(sc);
 			break;
 		}
 
+	}
+	private static void UptadeSellerOption(Scanner sc) {
+		SellerDao sellerDao = DaoFactory.createSellerDao();
+		System.out.println("===UPDATE SELLER===");
+		Seller seller = sellerDao.findById(ValidationUtil.validateIntegerEntry(sc));
+		System.out.println(seller);
+		System.out.println("UPTDATE:");
+		System.out.println("1. Name");
+		System.out.println("2. Email");
+		System.out.println("3. BirthDate");
+		System.out.println("4. Base salary");
+
+		switch (ValidationUtil.validateIntegerEntry(sc)) {
+		case 1:
+			System.out.print("Update name: ");
+			String name;
+			sc.nextLine();
+			try {
+				ValidationUtil.ValidateSellerName(name = sc.nextLine());
+				seller.setName(name);
+			} catch (InvalidEntryException e) {
+				System.out.println(e.getMessage());
+			}
+			System.out.println("Update completed!");
+			break;
+		case 2:
+			System.out.print("Update email: ");
+			String email;
+			sc.nextLine();
+			try {
+				ValidationUtil.ValidateSellerEmail(email = sc.nextLine());
+				seller.setName(email);
+			} catch (InvalidEntryException e) {
+				System.out.println(e.getMessage());
+			}
+			System.out.println("Update completed!");
+			break;
+		case 3:
+			SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+			Date birthDate = null;
+			sc.nextLine();
+
+			while (birthDate == null) {
+				try {
+					System.out.print("Birthdate (DD/MM/YYYY): ");
+					ValidationUtil.ValidateSellerAge(birthDate = sdf.parse(sc.next()));
+				} catch (InvalidEntryException e) {
+					System.out.println("\n" + e.getMessage() + "\n");
+					birthDate = null;
+				} catch (ParseException e) {
+					System.out.println("Error: Invalid date! Please use the format DD/MM/YYYY.\n");
+					birthDate = null;
+				}
+				seller.setBirthDate(birthDate);
+			}
+			System.out.println("Update completed!");
+			break;
+		case 4:
+			System.out.print("Base salary: ");
+			seller.setBaseSalary(sc.nextDouble());
+			System.out.println("Update completed!");
+			break;
+		default:
+			break;
+		}
+
+	}
+
+	private static void DeleteSellerOption(Scanner sc) {
+		SellerDao sellerDao = DaoFactory.createSellerDao();
+		System.out.println("\n=== Delete Seller ===");
+		int id = ValidationUtil.validateIntegerEntry(sc);
+		Seller seller = sellerDao.findById(id);
+		System.out.println("Delete seller:" + seller.getName() + "? (y/n)");
+		char i = sc.next().charAt(0);
+		if (i == 'y') {
+			sellerDao.deleteById(1);
+			System.out.println("Delete completed");
+		}
+
+	}
+
+	private static void FindByDepartmentIdSellerOption(Scanner sc) {
+		SellerDao sellerDao = DaoFactory.createSellerDao();
+		System.out.println("\n===FIND SELLER BY DEPARTMENT ID===");
+		Department department = new Department(ValidationUtil.validateIntegerEntry(sc), null);
+		List<Seller> list = sellerDao.findByDepartment(department);
+		for (Seller obj : list) {
+			System.out.println(obj);
+		}
+		System.out.println();
+	}
+
+	private static void FindAllSellerOption(Scanner sc) {
+		SellerDao sellerDao = DaoFactory.createSellerDao();
+		System.out.println("\n===FIND All===");
+		List<Seller> list = sellerDao.findAll();
+		for (Seller obj : list) {
+			System.out.println(obj);
+		}
+
+	}
+
+	private static void FindByIdSellerOption(Scanner sc) {
+		SellerDao sellerDao = DaoFactory.createSellerDao();
+		System.out.println("\n===FIND SELLER BY ID===");
+		Seller seller = sellerDao.findById(ValidationUtil.validateIntegerEntry(sc));
+		System.out.println(seller);
+		System.out.println();
 	}
 
 	private static void InsertSellerOption(Scanner sc) {
@@ -143,17 +246,23 @@ public class Program {
 		char check;
 		do {
 			sc.nextLine();
-			System.out.println("===INSERT NEW SELLER===");
-			System.out.println("Name: ");
-			String name = sc.nextLine();
-
+			System.out.println("\n===INSERT NEW SELLER===");
+			String name = null;
+			while (name == null) {
+				try {
+					System.out.println("Name: ");
+					ValidationUtil.ValidateSellerName(name = sc.nextLine());
+				} catch (InvalidEntryException e) {
+					System.out.println("\n" + e.getMessage() + "\n");
+					name = null;
+				}
+			}
 			String email = null;
 
 			while (email == null) {
 				try {
 					System.out.println("Email: ");
-					email = sc.nextLine();
-					ValidationUtil.verifyEmail(email);
+					ValidationUtil.ValidateSellerEmail(email = sc.nextLine());
 				} catch (InvalidEntryException e) {
 					System.out.println("\n" + e.getMessage() + "\n");
 					email = null;
@@ -164,8 +273,7 @@ public class Program {
 			while (birthDate == null) {
 				try {
 					System.out.println("Birthdate (DD/MM/YYYY): ");
-					birthDate = sdf.parse(sc.next());
-					ValidationUtil.verifyAge(birthDate);
+					ValidationUtil.ValidateSellerAge(birthDate = sdf.parse(sc.next()));
 				} catch (InvalidEntryException e) {
 					System.out.println("\n" + e.getMessage() + "\n");
 					birthDate = null;
@@ -176,13 +284,14 @@ public class Program {
 			}
 			System.out.println("Base salary: ");
 			double baseSalary = sc.nextDouble();
+
+			// TODO find a way to check if department id exist
 			System.out.println("Department id: ");
 			int depId = sc.nextInt();
 
 			Department dep = departmentDao.findById(depId);
 			System.out.println("\nName: " + name + "\nEmail: " + email + "\nBirthDate: " + sdf.format(birthDate)
-					+ "\nBase salary: " + baseSalary + "\nDerpartment: " + dep.getName()
-					+ "\n\nCONFIRM? (y/n) ");
+					+ "\nBase salary: " + baseSalary + "\nDerpartment: " + dep.getName() + "\n\nCONFIRM? (y/n) ");
 			check = sc.next().charAt(0);
 
 			if (check == 'y') {
@@ -192,7 +301,7 @@ public class Program {
 				System.out.println("\n+++ SELLER ADDED SUCCESSFULLY! +++\n\n\n");
 
 			}
-			if(check == 'n') {
+			if (check == 'n') {
 				System.out.println("DO YOU WANT TO INSERT AGAIN? (y/n)");
 				char a = sc.next().charAt(0);
 				if (a == 'n') {
@@ -204,13 +313,67 @@ public class Program {
 	}
 
 	private static void initializeDepartmentOptions(int options, Scanner sc) {
+		DepartmentDao department = DaoFactory.createDepartmentDao();
+		switch (options) {
+		case 1:
+			FindBySellerIdOption(sc);
+			break;
+		case 2:
+			FindDepartmentByIdOption(sc);
+			break;
+		case 3:
+			FindAllDepartmentOption(sc);
+			break;
+		case 4:
+			InsertDepartmentOption(sc);
+			break;
+		case 5:
+			UpdateDepartmentOption(sc);
+			break;
+		case 6:
+			DeleteDepartmentOption(sc);
+			break;
+		}
 
 	}
 
-	private static Integer getEntryId(Scanner sc) {
-		System.out.print("Enter id number: ");
-		return sc.nextInt();
+	private static void DeleteDepartmentOption(Scanner sc) {
+		// TODO Auto-generated method stub
+		
 	}
+
+	private static void UpdateDepartmentOption(Scanner sc) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	private static void InsertDepartmentOption(Scanner sc) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	private static void FindAllDepartmentOption(Scanner sc) {
+		DepartmentDao departmentDao = DaoFactory.createDepartmentDao();
+		System.out.println("\n===SHOW All===");
+		
+		Set<Department> list = departmentDao.findAll();
+		for(Department obj : list) {
+			System.out.println(obj);
+		}
+		
+		
+	}
+
+	private static void FindDepartmentByIdOption(Scanner sc) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	private static void FindBySellerIdOption(Scanner sc) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }
 
 /*

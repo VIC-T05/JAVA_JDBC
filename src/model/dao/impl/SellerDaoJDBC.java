@@ -5,17 +5,12 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import db.DB;
 import db.DbException;
-import db.InvalidEntryException;
 import model.dao.SellerDao;
 import model.entities.Department;
 import model.entities.Seller;
