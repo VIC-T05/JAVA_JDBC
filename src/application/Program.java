@@ -80,7 +80,8 @@ public class Program {
 	private static void departmentOptions(Scanner sc) {
 		System.out.println("=== DEPARTMENT OPTIONS ===");
 		System.out.println("1. Find by ID");
-		System.out.println("3. Find all");
+		System.out.println("2. Find all");
+		System.out.println("3. Insert department");
 		System.out.println("0. Return");
 		int departmentOption = sc.nextInt();
 
@@ -104,14 +105,13 @@ public class Program {
 
 		switch (options) {
 		case 1:
-			FindByIdSellerOption(sc);
+			FindSellerByIdOption(sc);
 			break;
 		case 2:
 			FindByDepartmentIdSellerOption(sc);
 			break;
 		case 3:
 			FindAllSellerOption(sc);
-			System.out.println();
 			break;
 		case 4:
 			InsertSellerOption(sc);
@@ -127,6 +127,7 @@ public class Program {
 		}
 
 	}
+
 	private static void UptadeSellerOption(Scanner sc) {
 		SellerDao sellerDao = DaoFactory.createSellerDao();
 		System.out.println("===UPDATE SELLER===");
@@ -203,7 +204,7 @@ public class Program {
 		char i = sc.next().charAt(0);
 		if (i == 'y') {
 			sellerDao.deleteById(1);
-			System.out.println("Delete completed");
+			System.out.println("\n--- SELLER DELETED ---\n");
 		}
 
 	}
@@ -229,12 +230,11 @@ public class Program {
 
 	}
 
-	private static void FindByIdSellerOption(Scanner sc) {
+	private static void FindSellerByIdOption(Scanner sc) {
 		SellerDao sellerDao = DaoFactory.createSellerDao();
 		System.out.println("\n===FIND SELLER BY ID===");
 		Seller seller = sellerDao.findById(ValidationUtil.validateIntegerEntry(sc));
-		System.out.println(seller);
-		System.out.println();
+		System.out.println(seller + "\n");
 	}
 
 	private static void InsertSellerOption(Scanner sc) {
@@ -316,21 +316,18 @@ public class Program {
 		DepartmentDao department = DaoFactory.createDepartmentDao();
 		switch (options) {
 		case 1:
-			FindBySellerIdOption(sc);
-			break;
-		case 2:
 			FindDepartmentByIdOption(sc);
 			break;
-		case 3:
+		case 2:
 			FindAllDepartmentOption(sc);
 			break;
-		case 4:
+		case 3:
 			InsertDepartmentOption(sc);
 			break;
-		case 5:
+		case 4:
 			UpdateDepartmentOption(sc);
 			break;
-		case 6:
+		case 5:
 			DeleteDepartmentOption(sc);
 			break;
 		}
@@ -339,39 +336,51 @@ public class Program {
 
 	private static void DeleteDepartmentOption(Scanner sc) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	private static void UpdateDepartmentOption(Scanner sc) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	private static void InsertDepartmentOption(Scanner sc) {
-		// TODO Auto-generated method stub
-		
+		DepartmentDao departmentDao = DaoFactory.createDepartmentDao();
+		System.out.println("\n===INSERT DEPARTMENT===");
+
+		String name = null;
+		sc.nextLine();
+		while (name == null) {
+			try {
+				System.out.print("Insert new Department Name: ");
+				ValidationUtil.validateDepartmentName(name = sc.nextLine());
+			} catch (InvalidEntryException e) {
+				name = null;
+				System.out.println(e.getMessage());
+			}
+		}
+		Department department = new Department(null, name);
+		departmentDao.insert(department);
+		System.out.println("\n+++ DEPARTMENT ADDED SUCCESSFULLY! +++\n");
+		sc.next();
 	}
 
 	private static void FindAllDepartmentOption(Scanner sc) {
 		DepartmentDao departmentDao = DaoFactory.createDepartmentDao();
 		System.out.println("\n===SHOW All===");
-		
+
 		Set<Department> list = departmentDao.findAll();
-		for(Department obj : list) {
+		for (Department obj : list) {
 			System.out.println(obj);
 		}
-		
-		
+
 	}
 
 	private static void FindDepartmentByIdOption(Scanner sc) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	private static void FindBySellerIdOption(Scanner sc) {
-		// TODO Auto-generated method stub
-		
+		DepartmentDao departmentDao = DaoFactory.createDepartmentDao();
+		System.out.println("\n===FIND DEPARTMENT BY ID===");
+		Department department = departmentDao.findById(ValidationUtil.validateIntegerEntry(sc));
+		System.out.println(department + "\n");
 	}
 
 }

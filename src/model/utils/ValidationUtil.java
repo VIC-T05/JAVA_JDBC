@@ -60,6 +60,12 @@ public class ValidationUtil {
 
 	}
 
-	
+	public static void validateDepartmentName(String name) {
+		// BUSINESS RULE: DEPARTMENT'S NAME MUST STAR WITH AN UPPERCASE LETTER	
+		String regex = "^[A-Z][a-zA-Z]*$";
+		if (!name.matches(regex)) {
+			throw new InvalidEntryException("Error. It must star with uppercase letters!");
+		}
+	}
 }
 
