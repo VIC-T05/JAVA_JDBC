@@ -7,6 +7,7 @@ import java.util.InputMismatchException;
 import java.util.Scanner;
 
 import db.InvalidEntryException;
+import model.entities.Department;
 
 public class ValidationUtil {
 
@@ -66,6 +67,17 @@ public class ValidationUtil {
 		if (!name.matches(regex)) {
 			throw new InvalidEntryException("Error. It must star with uppercase letters!");
 		}
+	}
+
+	public static void validateDepartmentExistence(Department dep) {
+		
+		if(dep == null) {
+			System.out.println("Department not found!");
+		}
+		
+		
+		
+		
 	}
 }
 

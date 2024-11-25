@@ -83,6 +83,7 @@ public class Program {
 		System.out.println("2. Find all");
 		System.out.println("3. Insert department");
 		System.out.println("4. Update department");
+		System.out.println("5. Delete department");
 		System.out.println("0. Return");
 		int departmentOption = sc.nextInt();
 
@@ -124,6 +125,30 @@ public class Program {
 			DeleteSellerOption(sc);
 		default:
 			sellerOptions(sc);
+			break;
+		}
+
+	}
+
+	private static void initializeDepartmentOptions(int options, Scanner sc) {
+		switch (options) {
+		case 1:
+			FindDepartmentByIdOption(sc);
+			break;
+		case 2:
+			FindAllDepartmentOption(sc);
+			break;
+		case 3:
+			InsertDepartmentOption(sc);
+			break;
+		case 4:
+			UpdateDepartmentOption(sc);
+			break;
+		case 5:
+			DeleteDepartmentOption(sc);
+			break;
+		default:
+			departmentOptions(sc);
 			break;
 		}
 
@@ -211,14 +236,28 @@ public class Program {
 	}
 
 	private static void FindByDepartmentIdSellerOption(Scanner sc) {
+
 		SellerDao sellerDao = DaoFactory.createSellerDao();
 		System.out.println("\n===FIND SELLER BY DEPARTMENT ID===");
-		Department department = new Department(ValidationUtil.validateIntegerEntry(sc), null);
-		List<Seller> list = sellerDao.findByDepartment(department);
-		for (Seller obj : list) {
-			System.out.println(obj);
+		DepartmentDao departmentDao = DaoFactory.createDepartmentDao();
+
+		Department department = null;
+		Integer id = null;
+		while (department == null) {
+			id = ValidationUtil.validateIntegerEntry(sc);
+			department = departmentDao.findById(id);
+			ValidationUtil.validateDepartmentExistence(department);
 		}
-		System.out.println();
+		department = new Department(id, null);
+
+		ValidationUtil.validateDepartmentExistence(department);
+		if (department != null) {
+			List<Seller> list = sellerDao.findByDepartment(department);
+			for (Seller obj : list) {
+				System.out.println(obj);
+			}
+			System.out.println();
+		}
 	}
 
 	private static void FindAllSellerOption(Scanner sc) {
@@ -235,7 +274,13 @@ public class Program {
 		SellerDao sellerDao = DaoFactory.createSellerDao();
 		System.out.println("\n===FIND SELLER BY ID===");
 		Seller seller = sellerDao.findById(ValidationUtil.validateIntegerEntry(sc));
-		System.out.println(seller + "\n");
+
+		if (seller == null) {
+			System.out.println("Seller not found!\n");
+		} else {
+
+			System.out.println(seller + "\n");
+		}
 	}
 
 	private static void InsertSellerOption(Scanner sc) {
@@ -251,7 +296,7 @@ public class Program {
 			String name = null;
 			while (name == null) {
 				try {
-					System.out.println("Name: ");
+					System.out.print("Name: ");
 					ValidationUtil.ValidateSellerName(name = sc.nextLine());
 				} catch (InvalidEntryException e) {
 					System.out.println("\n" + e.getMessage() + "\n");
@@ -262,7 +307,7 @@ public class Program {
 
 			while (email == null) {
 				try {
-					System.out.println("Email: ");
+					System.out.print("Email: ");
 					ValidationUtil.ValidateSellerEmail(email = sc.nextLine());
 				} catch (InvalidEntryException e) {
 					System.out.println("\n" + e.getMessage() + "\n");
@@ -273,7 +318,7 @@ public class Program {
 
 			while (birthDate == null) {
 				try {
-					System.out.println("Birthdate (DD/MM/YYYY): ");
+					System.out.print("Birthdate (DD/MM/YYYY): ");
 					ValidationUtil.ValidateSellerAge(birthDate = sdf.parse(sc.next()));
 				} catch (InvalidEntryException e) {
 					System.out.println("\n" + e.getMessage() + "\n");
@@ -283,14 +328,20 @@ public class Program {
 					birthDate = null;
 				}
 			}
-			System.out.println("Base salary: ");
+			System.out.print("Base salary: ");
 			double baseSalary = sc.nextDouble();
+			Department dep = new Department();
+			int depId;
+			do {
+				System.out.print("Department id\n");
+				depId = ValidationUtil.validateIntegerEntry(sc);
+				dep = departmentDao.findById(depId);
 
-			// TODO find a way to check if department id exist
-			System.out.println("Department id: ");
-			int depId = sc.nextInt();
+				if (dep == null) {
+					System.out.println("\nDepartment not found.\n");
+				}
+			} while (dep == null);
 
-			Department dep = departmentDao.findById(depId);
 			System.out.println("\nName: " + name + "\nEmail: " + email + "\nBirthDate: " + sdf.format(birthDate)
 					+ "\nBase salary: " + baseSalary + "\nDerpartment: " + dep.getName() + "\n\nCONFIRM? (y/n) ");
 			check = sc.next().charAt(0);
@@ -313,40 +364,35 @@ public class Program {
 
 	}
 
-	private static void initializeDepartmentOptions(int options, Scanner sc) {
-		switch (options) {
-		case 1:
-			FindDepartmentByIdOption(sc);
-			break;
-		case 2:
-			FindAllDepartmentOption(sc);
-			break;
-		case 3:
-			InsertDepartmentOption(sc);
-			break;
-		case 4:
-			UpdateDepartmentOption(sc);
-			break;
-		case 5:
-			DeleteDepartmentOption(sc);
-			break;
-		}
-
-	}
-
 	private static void DeleteDepartmentOption(Scanner sc) {
-		// TODO Auto-generated method stub
+		System.out.println("===DELETE DEPARTMENT===\n");
+		DepartmentDao departmentDao = DaoFactory.createDepartmentDao();
+		Department department = null;
+		Integer id = null;
+		while (department == null) {
+			id = ValidationUtil.validateIntegerEntry(sc);
+			department = departmentDao.findById(id);
+			ValidationUtil.validateDepartmentExistence(department);
+		}
+		System.out.println("Delete department " + department.getName() + "? (y/n)");
+		char i = sc.next().charAt(0);
 
+		if (i == 'y') {
+			departmentDao.deleteById(id);
+			System.out.println(department.getName() + "DELETED!!\n");
+		} else {
+			return;
+		}
 	}
 
 	private static void UpdateDepartmentOption(Scanner sc) {
 		DepartmentDao departmentDao = DaoFactory.createDepartmentDao();
 		System.out.println("\n===UPDATE DEPARTMENT===\n");
-		String name = null;		
+		String name = null;
 		String pastName = null;
 		Department department = departmentDao.findById(ValidationUtil.validateIntegerEntry(sc));
 		sc.nextLine();
-		pastName= department.getName();
+		pastName = department.getName();
 		if (department.getName() != null) {
 			System.out.println("Department: " + department.getName());
 			while (name == null) {
@@ -364,7 +410,7 @@ public class Program {
 			System.out.println("Error. Department not found!");
 			return;
 		}
-		System.out.println("\nUpdate completed!\nFrom " + pastName + " to " + name + ".");
+		System.out.println("\nUpdate completed!\nFrom " + pastName + " to " + name + "." + "\n\nPress to back");
 
 	}
 
@@ -385,7 +431,7 @@ public class Program {
 		}
 		Department department = new Department(null, name);
 		departmentDao.insert(department);
-		System.out.println("\n+++ DEPARTMENT ADDED SUCCESSFULLY! +++\n");
+		System.out.println("\n+++ DEPARTMENT ADDED SUCCESSFULLY! +++\n\nPress to back");
 	}
 
 	private static void FindAllDepartmentOption(Scanner sc) {
@@ -400,10 +446,16 @@ public class Program {
 	}
 
 	private static void FindDepartmentByIdOption(Scanner sc) {
+
 		DepartmentDao departmentDao = DaoFactory.createDepartmentDao();
 		System.out.println("\n===FIND DEPARTMENT BY ID===");
-		Department department = departmentDao.findById(ValidationUtil.validateIntegerEntry(sc));
-		System.out.println(department + "\n");
+		Department department = null;
+		department = departmentDao.findById(ValidationUtil.validateIntegerEntry(sc));
+		ValidationUtil.validateDepartmentExistence(department);
+
+		if (department != null) {
+			System.out.println(department);
+		}
 	}
 
 }
